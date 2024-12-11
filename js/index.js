@@ -29,3 +29,24 @@ const products = [
     { name: "Moby Dick", category: "books", price: 12.99, image: "/products/product19.jpg" },
     { name: "Pride and Prejudice", category: "books", price: 7.99, image: "/products/product20.jpg" }
 ];
+
+class Products {
+    constructor(name,category,price,image){
+        this.name = name;
+        this.category = category;
+        this.price = price;
+        this.image = image;
+    }
+}
+
+const groupedByCategory = products.reduce((acc, product) => {
+    { category } = product
+    
+    const productInstance = new Products(product.name, product.category, product.price, product.image);
+
+    if (!acc[category]) {
+        acc[category] = [];
+    }
+    acc[category].push(productInstance);
+},{})
+        
