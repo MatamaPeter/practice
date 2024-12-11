@@ -1,0 +1,9 @@
+.electronics,
+.Clothing,
+.Food,
+.computers,
+.books{
+    display:flex;
+    gap: 1rem;
+
+}

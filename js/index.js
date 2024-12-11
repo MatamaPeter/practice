@@ -40,7 +40,7 @@ class Products {
 }
 
 const groupedByCategory = products.reduce((acc, product) => {
-    { category } = product
+    const { category } = product
     
     const productInstance = new Products(product.name, product.category, product.price, product.image);
 
@@ -48,5 +48,28 @@ const groupedByCategory = products.reduce((acc, product) => {
         acc[category] = [];
     }
     acc[category].push(productInstance);
+    return acc;
 },{})
+    
+
+ 
+const { computers, electronics, Clothing, Food, books } = groupedByCategory;
+
+function renderproducts(categoryList) {
+    categoryList.forEach((product) => {
+    
+    document.querySelector(`.${product.category}`).innerHTML += `
         
+        <img src="images/${product.image}">
+        <h5>${product.name}</h5>
+        <p>Price: $${product.price}</p>
+    `
+    
+    })
+}
+
+renderproducts(computers);
+renderproducts(electronics);
+renderproducts(Clothing);
+renderproducts(Food);
+renderproducts(books);
