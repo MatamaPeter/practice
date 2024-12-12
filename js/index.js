@@ -85,13 +85,6 @@ const groupedByCategory = enhancedProducts.reduce((acc, product) => {
 }, {});
 
 
-try {
-    console.log(groupedByCategory[category]);
-} catch (error) {
-    console.error()
-}
-
-
 // Loop through groupedByCategory and render products to their respective categories
 function renderCategories(groupedByCategory) {
     for (const category in groupedByCategory) {
