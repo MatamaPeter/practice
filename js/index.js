@@ -101,7 +101,7 @@ function renderCategories(groupedByCategory) {
                 <h5>${product.name}</h5>
                 <p>Price: $${product.price}</p>
                 <img src="${product.image}" alt="${product.name}">
-                ${product.discountedPrice ? `<p>Discounted Price: $${product.discountedPrice}</p>` : ''}
+                ${product.discountedPrice ? `<p>Discounted Price: $${product.discountedPrice.toFixed(2)}</p>` : ''}
                 ${product.size ? `
                     <select>
                         ${Object.entries(product.size).map(([key, value]) => 
