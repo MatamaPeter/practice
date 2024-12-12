@@ -12,10 +12,10 @@ const products = [
     { name: "Apple Watch Series 8", category: "electronics", price: 399.99, image: "/products/product8.jpg" },
 
     // Clothing
-    { name: "T-shirt", category: "Clothing", price: 19.99, image: "/products/product9.jpg", size:'XXL'},
-    { name: "Jeans", category: "Clothing", price: 39.99, image: "/products/product10.jpg", size:'XL' },
-    { name: "Leather Jacket", category: "Clothing", price: 129.99, image: "/products/product11.jpg", size:'M' },
-    { name: "Sneakers", category: "Clothing", price: 59.99, image: "/products/product12.jpg", size:'L'},
+    { name: "T-shirt", category: "Clothing", price: 19.99, image: "/products/product9.jpg", size: { large:'L',medium:'M',small:'S'} },
+    { name: "Jeans", category: "Clothing", price: 39.99, image: "/products/product10.jpg", size: { large:'L',medium:'M',small:'S'} },
+    { name: "Leather Jacket", category: "Clothing", price: 129.99, image: "/products/product11.jpg", size: { large:'L',medium:'M',small:'S'} },
+    { name: "Sneakers", category: "Clothing", price: 59.99, image: "/products/product12.jpg", size: { large:'L',medium:'M',small:'S'}},
 
     // Food
     { name: "Apple", category: "Food", price: 1.99, image: "/products/product13.jpg" },
@@ -30,53 +30,59 @@ const products = [
     { name: "Pride and Prejudice", category: "books", price: 7.99, image: "/products/product20.jpg" }
 ];
 
-class Products{
-    constructor(name, category, price, image,discountedPrice) {
+const cars = {
+    Name: 'toyota',
+    Model: {
+        model1: 2018,
+        model2: 234
+    }
+}
+console.log(cars);
+
+
+class Products {
+    constructor(name, category, price, image, discountedPrice) {
         this.name = name;
         this.category = category;
         this.price = price;
         this.image = image;
-        this.discountedPrice = discountedPrice
+        this.discountedPrice = discountedPrice;
     }
-    renderProduct(){
-    return `Name: ${this.name} Category:${this.category} Price:${this.price} Image: ${this.image} Discounted Price: ${this.discountedPrice} `
+    renderProduct() {
+        return `Name: ${this.name} Category: ${this.category} Price: $${this.price} Image: ${this.image} Discounted Price: $${this.discountedPrice}`;
     }
 }
 
 class Clothing extends Products {
     constructor(name, category, price, image, discountedPrice, size) {
-        super(name, category, price, image, discountedPrice)
+        super(name, category, price, image, discountedPrice);
         this.size = size;
-
     }
-    renderProduct(){
-    return `${super.renderProduct()} Size: ${this.size}' `
+    renderProduct() {
+        return `${super.renderProduct()} Size: ${this.size}`;
     }
 }
 
+// Apply the discount logic (90% of the original price for discount)
 const enhancedProducts = products.map(product => ({
     ...product,
-    discountedPrice:product.price*0.1
-}))
+    discountedPrice: product.price * 0.9 // Applying 10% discount
+}));
 
-
+// Function to create instances of Products or Clothing
 function createProducts(name, category, price, image, discountedPrice, size = null) {
+    if (category === 'Clothing') {
+        return new Clothing(name, category, price, image, discountedPrice, size);
+    } else {
+        return new Products(name, category, price, image, discountedPrice);
+    }
+}
 
-        if (category === 'Clothing') {
-                return new Clothing(name, category, price, image, discountedPrice, size) 
-
-        } else {
-            return new Products(name, category, price, image, discountedPrice)
-            }
- }
-enhancedProducts.forEach((product) => {  
-    productList = createProducts(product.name, product.category, product.price, product.image, product.discountedPrice, product.size);
-})
-
+// Group products by category and create instances
 const groupedByCategory = enhancedProducts.reduce((acc, product) => {
-    const { category } = product
-    const productInstance = new Products (product.name, product.category, product.price, product.image, product.discountedPrice, product.size)
-    
+    const { category } = product;
+    const productInstance = createProducts(product.name, product.category, product.price, product.image, product.discountedPrice, product.size);
+
     if (!acc[category]) {
         acc[category] = [];
     }
@@ -84,32 +90,30 @@ const groupedByCategory = enhancedProducts.reduce((acc, product) => {
     return acc;
 }, {});
 
-
-// Loop through groupedByCategory and render products to their respective categories
+// Function to render products by category
 function renderCategories(groupedByCategory) {
     for (const category in groupedByCategory) {
-        // Get the div for this category
         const categoryDiv = document.querySelector(`.${category.toLowerCase()}`);
-        
-        // Loop through the products in this category
+
         groupedByCategory[category].forEach((product) => {
-            // Create HTML for each product
-            const productHtml = `
-                <div class="product-item">
-                    <h5>${product.name}</h5>
-                    <p>Price: $${product.price}</p>
-                    <img src="${product.image}" alt="${product.name}">
-                    ${product.discountedPrice ? `<p>Discounted Price: $${product.discountedPrice.toFixed(2)}</p>` : ''}
-                    ${product.size ? `<p>Size: ${product.size}</p>` : ''}
-                </div>
+            const productsHTML = `
+            <div class="product-item">
+                <h5>${product.name}</h5>
+                <p>Price: $${product.price}</p>
+                <img src="${product.image}" alt="${product.name}">
+                ${product.discountedPrice ? `<p>Discounted Price: $${product.discountedPrice}</p>` : ''}
+                ${product.size ? `
+                    <select>
+                        ${Object.entries(product.size).map(([key, value]) => 
+                            `<option value="${value}">${key}</option>`).join('')}
+                    </select>                    
+                ` : ''}
+            </div>
             `;
-            
-            // Append the product to the category div
-            categoryDiv.innerHTML += productHtml;
+            categoryDiv.innerHTML += productsHTML;
         });
     }
 }
 
-// Call the function to render categories after data is grouped
+// Call the render function to display the products
 renderCategories(groupedByCategory);
-
