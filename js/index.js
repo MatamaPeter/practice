@@ -30,74 +30,72 @@ const products = [
     { name: "Pride and Prejudice", category: "books", price: 7.99, image: "/products/product20.jpg" }
 ];
 
-const cars = {
-    Name: 'toyota',
-    Model: {
-        model1: 2018,
-        model2: 234
-    }
-}
-console.log(cars);
-
-
-class Products {
-    constructor(name, category, price, image, discountedPrice) {
+class Product{
+    constructor(name,image, vprice,category,discountedPrice){
         this.name = name;
-        this.category = category;
-        this.price = price;
         this.image = image;
+        this.price = price;
+        this.category = category;
         this.discountedPrice = discountedPrice;
     }
-    renderProduct() {
-        return `Name: ${this.name} Category: ${this.category} Price: $${this.price} Image: ${this.image} Discounted Price: $${this.discountedPrice}`;
+    renderProducts() {
+        return `Product: ${this.name} Price:${this.price} Category:${this.category} Discounted Price:${this.discountedPrice}`;
     }
 }
-
-class Clothing extends Products {
-    constructor(name, category, price, image, discountedPrice, size) {
-        super(name, category, price, image, discountedPrice);
+const shirt = new Product("T-shirt", 19.99, "Clothing", 14.99);
+console.log(shirt.renderProducts());
+class CLothing extends Product {
+    constructor(name, price, category, discountedPrice, size) {
+        super(name, price, category, discountedPrice);
         this.size = size;
     }
-    renderProduct() {
-        return `${super.renderProduct()} Size: ${this.size}`;
+    renderProducts() {
+        return `${super.renderProducts()} size: ${this.size}`
     }
 }
 
-// Apply the discount logic (90% of the original price for discount)
+    
+
+function createProduct(name,image, price, category, discountedPrice, size = null) {
+    if (category === "Clothing") {
+        return new CLothing(name,image, price, category, discountedPrice, size);
+    } else {
+        return new Product(name, image,price, category, discountedPrice)
+    }
+    
+}
+
 const enhancedProducts = products.map(product => ({
     ...product,
-    discountedPrice: product.price * 0.9 // Applying 10% discount
-}));
 
-// Function to create instances of Products or Clothing
-function createProducts(name, category, price, image, discountedPrice, size = null) {
-    if (category === 'Clothing') {
-        return new Clothing(name, category, price, image, discountedPrice, size);
-    } else {
-        return new Products(name, category, price, image, discountedPrice);
-    }
-}
+    discountedPrice: product.price * 0.8
 
-// Group products by category and create instances
+}))
+
+enhancedProducts.forEach((product) => {
+    product = createProduct(product.name, product.image, product.price, product.category, product.discountedPrice.toFixed(2), product.size)
+    console.log(product.renderProducts());
+    
+})
+
 const groupedByCategory = enhancedProducts.reduce((acc, product) => {
-    const { category } = product;
-    const productInstance = createProducts(product.name, product.category, product.price, product.image, product.discountedPrice, product.size);
-
+    const { category } = product
+    const productInstance = new Product(product.name,product.image, product.price,  product.category, product.discountedPrice, product.size)
+    
     if (!acc[category]) {
-        acc[category] = [];
+        acc[category] =[]
     }
-    acc[category].push(productInstance);
+    acc[category].push(productInstance)
     return acc;
-}, {});
-
-// Function to render products by category
+    }, {})
+ 
 function renderCategories(groupedByCategory) {
-    for (const category in groupedByCategory) {
-        const categoryDiv = document.querySelector(`.${category.toLowerCase()}`);
-
-        groupedByCategory[category].forEach((product) => {
+    for (const categories in groupedByCategory) {
+        const categoryDiv = document.querySelector(`.${categories.toLowerCase()}`)
+        
+        groupedByCategory[categories].forEach((product) => {
             const productsHTML = `
-            <div class="product-item">
+                <div class="product-item">
                 <h5>${product.name}</h5>
                 <p>Price: $${product.price}</p>
                 <img src="${product.image}" alt="${product.name}">
@@ -109,11 +107,12 @@ function renderCategories(groupedByCategory) {
                     </select>                    
                 ` : ''}
             </div>
-            `;
+            `
+
             categoryDiv.innerHTML += productsHTML;
-        });
+        })
+
     }
 }
 
-// Call the render function to display the products
 renderCategories(groupedByCategory);
