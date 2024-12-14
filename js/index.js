@@ -30,8 +30,8 @@ const products = [
     { name: "Pride and Prejudice", category: "books", price: 7.99, image: "/products/product20.jpg" }
 ];
 
-class Product{
-    constructor(name,image, vprice,category,discountedPrice){
+  class Product {
+    constructor(name, image, price, category, discountedPrice) {
         this.name = name;
         this.image = image;
         this.price = price;
@@ -39,79 +39,73 @@ class Product{
         this.discountedPrice = discountedPrice;
     }
     renderProducts() {
-        return `Product: ${this.name} Price:${this.price} Category:${this.category} Discounted Price:${this.discountedPrice}`;
+        return `Product: ${this.name} Price: $${this.price} Category: ${this.category} Discounted Price: $${this.discountedPrice}`;
     }
 }
-const shirt = new Product("T-shirt", 19.99, "Clothing", 14.99);
-console.log(shirt.renderProducts());
-class CLothing extends Product {
-    constructor(name, price, category, discountedPrice, size) {
-        super(name, price, category, discountedPrice);
+
+class Clothing extends Product {
+    constructor(name, image, price, category, discountedPrice, size) {
+        super(name, image, price, category, discountedPrice);
         this.size = size;
     }
     renderProducts() {
-        return `${super.renderProducts()} size: ${this.size}`
+        return `${super.renderProducts()} Size: ${JSON.stringify(this.size)}`;
     }
 }
 
-    
-
-function createProduct(name,image, price, category, discountedPrice, size = null) {
-    if (category === "Clothing") {
-        return new CLothing(name,image, price, category, discountedPrice, size);
+function createProduct(name, image, price, category, discountedPrice, size = null) {
+    if (category.toLowerCase() === "clothing") {
+        return new Clothing(name, image, price, category, discountedPrice, size);
     } else {
-        return new Product(name, image,price, category, discountedPrice)
+        return new Product(name, image, price, category, discountedPrice);
     }
-    
 }
 
 const enhancedProducts = products.map(product => ({
     ...product,
+    discountedPrice: parseFloat((product.price * 0.8).toFixed(2))
+}));
 
-    discountedPrice: product.price * 0.8
+const productInstances = enhancedProducts.map(product => 
+    createProduct(product.name, product.image, product.price, product.category, product.discountedPrice, product.size)
+);
 
-}))
-
-enhancedProducts.forEach((product) => {
-    product = createProduct(product.name, product.image, product.price, product.category, product.discountedPrice.toFixed(2), product.size)
+productInstances.forEach(product => {
     console.log(product.renderProducts());
-    
-})
+});
 
-const groupedByCategory = enhancedProducts.reduce((acc, product) => {
-    const { category } = product
-    const productInstance = new Product(product.name,product.image, product.price,  product.category, product.discountedPrice, product.size)
-    
+const groupedByCategory = productInstances.reduce((acc, product) => {
+    const { category } = product;
     if (!acc[category]) {
-        acc[category] =[]
+        acc[category] = [];
     }
-    acc[category].push(productInstance)
+    acc[category].push(product);
     return acc;
-    }, {})
- 
+}, {});
+
 function renderCategories(groupedByCategory) {
-    for (const categories in groupedByCategory) {
-        const categoryDiv = document.querySelector(`.${categories.toLowerCase()}`)
-        
-        groupedByCategory[categories].forEach((product) => {
-            const productsHTML = `
+    for (const category in groupedByCategory) {
+        const categoryDiv = document.querySelector(`.${category.toLowerCase()}`);
+        if (!categoryDiv) continue; // Skip rendering if the category container is missing
+
+        groupedByCategory[category].forEach(product => {
+            const productHTML = `
                 <div class="product-item">
-                <h5>${product.name}</h5>
-                <p>Price: $${product.price}</p>
-                <img src="${product.image}" alt="${product.name}">
-                ${product.discountedPrice ? `<p>Discounted Price: $${product.discountedPrice.toFixed(2)}</p>` : ''}
-                ${product.size ? `
-                    <select>
-                        ${Object.entries(product.size).map(([key, value]) => 
-                            `<option value="${value}">${key}</option>`).join('')}
-                    </select>                    
-                ` : ''}
-            </div>
-            `
-
-            categoryDiv.innerHTML += productsHTML;
-        })
-
+                    <h5>${product.name}</h5>
+                    <p>Price: $${product.price}</p>
+                    <img src="${product.image}" alt="${product.name}">
+                    ${product.discountedPrice ? `<p>Discounted Price: $${product.discountedPrice.toFixed(2)}</p>` : ''}
+                    ${product.size ? `
+                        <select>
+                            ${Object.entries(product.size).map(([key, value]) => 
+                                `<option value="${value}">${key}</option>`
+                            ).join('')}
+                        </select>
+                    ` : ''}
+                </div>
+            `;
+            categoryDiv.innerHTML += productHTML;
+        });
     }
 }
 
